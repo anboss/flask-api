@@ -1,7 +1,11 @@
+from tracing import setupTracingForFlask, setupTracingForRequests
 from flask import Flask, jsonify
 
 #initiate the flask api 
-app = Flask(__name__)          
+app = Flask(__name__)
+# setupTracing("flask-api","greet")
+setupTracingForFlask(app)
+setupTracingForRequests()
 
 #define a route
 @app.route('/api/greet', methods=['GET']) 
