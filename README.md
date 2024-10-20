@@ -8,40 +8,33 @@ python -m venv .venv
 activate the virtual environment
 .venv/scripts/activate
 
-install flask
-pip install flask
+install flask and otel package
 
-create a main.py
+pip install flask
+pip install "splunk-opentelemetry[all]"
+
+run bootstrap
+splunk-py-trace-bootstrap
+
+set environment variables
+./setenv.ps1
+
+validate environment variables
+./testenv.bat
+
+Start the collector
+Start-Service splunk-otel-collector
 
 fianlly running the api
+splunk-py-trace python main.py
+
 
 ![alt text](image.png)
 
-
-for opentelemetry setup
-
-In PowerShell:
-
-$env:OTEL_SERVICE_NAME = 'flask-api'
-$env:OTEL_EXPORTER_OTLP_ENDPOINT = 'http://localhost:4317'
-$env:OTEL_RESOURCE_ATTRIBUTES = 'deployment.environment=dev,service.version=1.0.0'
-$env:SPLUNK_ACCESS_TOKEN='30ufQYyFvKA16EmVFWe5KA'
-$env:OTEL_EXPORTER_OTLP_TRACES_PROTOCOL='http/protobuf'
-$env:OTEL_EXPORTER_OTLP_TRACES_ENDPOINT='https://ingest.us1.signalfx.com/v2/trace/otlp'
-
-to verify 
-
-echo $env:OTEL_SERVICE_NAME
-echo $env:OTEL_EXPORTER_OTLP_ENDPOINT
-echo $env:OTEL_RESOURCE_ATTRIBUTES
-echo $env:SPLUNK_ACCESS_TOKEN
-echo $env:OTEL_EXPORTER_OTLP_TRACES_PROTOCOL
-echo $env:OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
-
-
-
-SPLUNK_ACCESS_TOKEN=h9LOfZfAP4MHAFK4efA_Ug
-
+Kill python process
+Stop-Process -Name *python
 
 # Check the registry key for environment variables
 Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\splunk-otel-collector" -Name Environment
+
+curl -X POST "https://ingest.us1.signalfx.com/v2/trace/otlp" -H "Content-Type: application/x-protobuf" -H "X-SF-Token: QHAkDNYhl2aOrwsU68CrQQ" -d "string"
